@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Guará Planejados - Peça</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.10);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .medida {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .campo {
+            margin: 15px 0;
+        }
+
+        .titulo {
+            font-size: 12px;
+            color: #777;
+            font-weight: bold;
+        }
+
+        .valor {
+            font-size: 18px;
+            margin-top: 4px;
+        }
+
+        #erro {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Guará Planejados</h1>
+
+    <p id="carregando">
+        Buscando peça...
+    </p>
+
+    <p id="erro"></p>
+
+    <div id="peca" style="display:none;">
+
+        <h2 id="nome"></h2>
+
+        <div class="medida" id="medida"></div>
+
+        <div class="campo">
+            <div class="titulo">PROJETO</div>
+            <div class="valor" id="projeto"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">CLIENTE</div>
+            <div class="valor" id="cliente"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">AMBIENTE</div>
+            <div class="valor" id="ambiente"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">MÓDULO</div>
+            <div class="valor" id="modulo"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">MATERIAL</div>
+            <div class="valor" id="material"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">FITA</div>
+            <div class="valor" id="fita"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">USINAGEM</div>
+            <div class="valor" id="usinagem"></div>
+        </div>
+
+        <div class="campo">
+            <div class="titulo">STATUS</div>
+            <div class="valor" id="status"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "COLOQUE_AQUI_SUA_PROJECT_URL";
+
+const SUPABASE_KEY = "COLOQUE_AQUI_SUA_PUBLISHABLE_KEY";
+
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+const parametros =
+    new URLSearchParams(window.location.search);
+
+const token =
+    parametros.get("id");
+
+async function buscarPeca() {
+
+    if (!token) {
+
+        document.getElementById("carregando").style.display = "none";
+
+        document.getElementById("erro").innerText =
+            "Nenhuma peça informada.";
+
+        return;
+    }
+
+    const { data, error } =
+        await supabase
+            .from("pecas")
+            .select("*")
+            .eq("token", token)
+            .single();
+
+    document.getElementById("carregando").style.display =
+        "none";
+
+    if (error || !data) {
+
+        document.getElementById("erro").innerText =
+            "Peça não encontrada.";
+
+        console.error(error);
+
+        return;
+    }
+
+    document.getElementById("peca").style.display =
+        "block";
+
+    document.getElementById("nome").innerText =
+        data.nome ?? "-";
+
+    document.getElementById("medida").innerText =
+        `${data.comprimento} × ${data.largura} × ${data.espessura} mm`;
+
+    document.getElementById("projeto").innerText =
+        data.projeto ?? "-";
+
+    document.getElementById("cliente").innerText =
+        data.cliente ?? "-";
+
+    document.getElementById("ambiente").innerText =
+        data.ambiente ?? "-";
+
+    document.getElementById("modulo").innerText =
+        data.modulo ?? "-";
+
+    document.getElementById("material").innerText =
+        data.material ?? "-";
+
+    document.getElementById("fita").innerText =
+        data.fita ?? "-";
+
+    document.getElementById("usinagem").innerText =
+        data.usinagem ?? "-";
+
+    document.getElementById("status").innerText =
+        data.status ?? "-";
+}
+
+buscarPeca();
+
+</script>
+
+</body>
+</html>
